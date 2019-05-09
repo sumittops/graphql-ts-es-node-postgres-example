@@ -1,0 +1,12 @@
+scalar DateTime
+
+type UserEvent {
+    id: ID!,
+    type: String!,
+    timestamp: DateTime!
+    data: String
+}
+
+type Query {
+    userAnalytics(type: String, from: DateTime, to: DateTime): UserEvent
+}
