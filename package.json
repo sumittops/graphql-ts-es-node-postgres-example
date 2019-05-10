@@ -8,6 +8,7 @@
     "@types/jest": "^24.0.12",
     "@types/node": "^9.6.6",
     "@types/uuid": "^3.4.4",
+    "@types/yup": "^0.26.13",
     "gql2ts": "^1.10.1",
     "graphql-request": "^1.8.2",
     "graphql-type-datetime": "^0.2.3",
@@ -26,11 +27,13 @@
     "graphql-yoga": "^1.9.2",
     "pg": "^7.4.1",
     "reflect-metadata": "^0.1.12",
-    "typeorm": "0.2.0"
+    "typeorm": "0.2.0",
+    "yup": "^0.27.0"
   },
   "scripts": {
     "start": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
     "test": "NODE_ENV=test jest",
+    "test-watch": "NODE_ENV=test jest --watch --coverage",
     "gen-schema-types": "gql2ts src/schema.graphql -o src/types/schema.d.ts"
   }
 }

@@ -8,5 +8,5 @@ type UserEvent {
 }
 
 type Query {
-    userAnalytics(type: String, from: DateTime, to: DateTime): UserEvent
+    userAnalytics(type: String, from: DateTime, to: DateTime): [UserEvent!]
 }

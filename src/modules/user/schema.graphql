@@ -1,3 +1,5 @@
+# import * as shared from "../../../shared.graphql" 
+
 type User { 
     id: String!
     name: String!
@@ -11,5 +13,5 @@ type Query {
 }
 
 type Mutation {
-    register(email: String!, password: String!, name: String!): Boolean
+    register(email: String!, password: String!, name: String!): [ResponseError!]
 }

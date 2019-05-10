@@ -2,7 +2,7 @@ import { GraphQLServer } from 'graphql-yoga'
 import { importSchema } from 'graphql-import'
 import * as path from 'path'
 import * as fs from 'fs'
-import { createTypeormConnection, createElasticsearchClient } from './utils';
+import { createTypeormConnection } from './utils';
 import { GraphQLSchema } from 'graphql';
 import { makeExecutableSchema, mergeSchemas } from 'graphql-tools';
 
@@ -22,15 +22,14 @@ const getSchemas = () => {
 }
 
 export const startServer = async () => {
+    await createTypeormConnection()
+    // createElasticsearchClient()
+    const port = process.env.NODE_ENV === 'test' ? 0 : 4000
     const server = new GraphQLServer({
         schema: mergeSchemas({ schemas: getSchemas() })
     })
-    
-    const connection = await createTypeormConnection()
-    const elasticClient = createElasticsearchClient()
-    const port = process.env.NODE_ENV === 'test' ? 0 : 4000
-    const http = await server.start({ port })
+    const app = await server.start({ port })
     console.log('server is running on port 4000')
-    return http
+    return app
 }
 
