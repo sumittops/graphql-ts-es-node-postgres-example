@@ -1,8 +1,7 @@
 import { startServer } from "../../../startServer";
 import { request } from 'graphql-request'
 import { User } from "../../../entity/User";
-import { nameError } from "../errorMessages";
-// import { formatYupError } from "src/utils";
+import { nameError, emailError, passwordError } from "../errorMessages";
 
 
 
@@ -95,6 +94,34 @@ describe('Test User module', () => {
 
         expect(response).toEqual({ register: [
             { path: "name", message: nameError.min}    
+        ]})
+    })
+
+    test('validate for correct email', async () => {
+        const email = 'bob@bo'
+        const name = 'bddsada'
+        const password = 'bsdasdasdqer'
+
+        const response = await request(
+            getHost(), 
+        mutation(email, password, name))
+
+        expect(response).toEqual({ register: [
+            { path: "email", message: emailError.email}    
+        ]})
+    })
+
+    test('validate for correct password length', async () => {
+        const email = 'bob@bobby.co'
+        const name = 'bddsada'
+        const password = 'br'
+
+        const response = await request(
+            getHost(), 
+        mutation(email, password, name))
+
+        expect(response).toEqual({ register: [
+            { path: "password", message: passwordError.min}    
         ]})
     })
 
