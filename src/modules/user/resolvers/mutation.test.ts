@@ -5,7 +5,7 @@ import { nameError, emailError, passwordError } from "../errorMessages";
 
 
 
-describe('Test User module', () => {
+describe('Test User mutations', () => {
     
     let getHost = () => '';
     

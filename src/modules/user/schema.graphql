@@ -7,9 +7,15 @@ type User {
     password: String!
 }
 
+type ResponseUser {
+    email: String!
+    name: String!
+}
+
 type Query {
-    user(email: String!): User
-    users: [User!]!
+    me: ResponseUser
+    login(email: String!, password: String!): ResponseUser,
+    signout: Boolean
 }
 
 type Mutation {
