@@ -1,12 +1,14 @@
-import { GraphQLServer } from 'graphql-yoga'
+import * as express from 'express'
+import { ApolloServer } from 'apollo-server-express'
 import { importSchema } from 'graphql-import'
 import * as path from 'path'
 import * as fs from 'fs'
-import { createTypeormConnection, createElasticsearchClient } from './utils';
+import * as cookieParser from 'cookie-parser'
+import { createTypeormConnection, createElasticsearchClient, getTokensFromRefreshToken } from './utils';
 import { GraphQLSchema } from 'graphql';
 import { makeExecutableSchema, mergeSchemas } from 'graphql-tools';
-import { Server as HttpServer } from 'http'
-import { Server as HttpsServer } from 'https'
+import { verify } from 'jsonwebtoken';
+import { ACCESS_TOKEN_SECRET } from './utils/constants';
 const getSchemas = () => {
     const schemas: GraphQLSchema[] = []
     const folders = fs.readdirSync(path.resolve(__dirname, 'modules'))
@@ -22,18 +24,44 @@ const getSchemas = () => {
     return schemas
 }
 
-export async function  startServer(): Promise<HttpServer | HttpsServer>{ 
+
+export async function  startServer(){ 
     await createTypeormConnection()
     const es_client = await createElasticsearchClient()
     const port = process.env.NODE_ENV === 'test' ? 0 : 4000
-    const server  = new GraphQLServer({
+    const server  = new ApolloServer({
         schema: mergeSchemas({ schemas: getSchemas() }),
-        context: () => ({
+        context: (props) => ({
+            ...props,
             es_client
-        })
+        }),
+        
     })
-    const app: HttpServer | HttpsServer = await server.start({ port })
-    console.log(`server is running on port ${[port]}`)
-    return app
+    const app = express()
+    app.use(cookieParser())
+
+    app.use(async (req, res, next) => {
+        const accessToken = req.cookies['access-token']
+        const refreshToken = req.cookies['refresh-token']
+        try {
+            const data = verify(accessToken, ACCESS_TOKEN_SECRET) as any
+            (req as any).userId = data.userId;
+        } catch (e) {
+            if (!refreshToken) 
+                return next()
+            const tokens = await getTokensFromRefreshToken(req, refreshToken)
+            if (tokens) {
+                res.cookie('access-token', tokens.accessToken)
+                res.cookie('refresh-token', tokens.refreshToken)
+            }
+        }
+        next()
+        
+    })
+
+    server.applyMiddleware({ app })
+    return app.listen({ port }, () => {
+        console.log(`server is running on http://localhost:${port}${server.graphqlPath}`)
+    })
 }
 

@@ -19,7 +19,7 @@ const register = async (_: any,
     } catch(e) {
         return formatYupError(e)
     }
-    const { email, name, password } = args
+    const { email, name } = args
     const userExists = await User.findOne({
         where: {
             email: email
@@ -34,10 +34,11 @@ const register = async (_: any,
         }]
     }
 
-    const hashed = await bcrypt.hash(password, 10)
+    const password = await bcrypt.hash(args.password, 10)
     const user = await User.create({
+
         email, 
-        password: hashed,
+        password,
         name
     })
     await user.save()
